@@ -1,11 +1,11 @@
 # Product Requirement Document (PRD)
 
 **Product Name:** AI Technical Interview Coach  
-**Document Version:** 1.1.0  
-**Status:** Ready for Implementation (Phase 1 Baseline with Phase 2 Architecture Alignment)  
-**Target Delivery Window:** 60-Minute Scoped MVP  
-**Target Audience:** Software Engineering Students & Aspiring Developers (DSA, System Design, LLD/HLD, Java, Spring)  
-**Primary Tech Stack:** Next.js (App Router, Tailwind CSS, TypeScript) on Vercel | FastAPI (Python 3.11+, Pydantic v2) on Render  
+**Document Version:** 1.2.0  
+**Status:** Phase 2 Implemented (Groq LLM Integration, Dual-Level Calibration, Question Skipping & Print Summary)  
+**Target Delivery Window:** Full-Stack Production Implementation  
+**Target Audience:** Software Engineering Candidates across All Seniority Tiers (Junior, Mid, Senior)  
+**Primary Tech Stack:** Next.js (App Router, Tailwind CSS, TypeScript) | FastAPI (Python 3.11+, Pydantic v2, Groq SDK)  
 
 ---
 
@@ -14,10 +14,10 @@
 Technical interview preparation for software engineering candidates is often fragmented, passive, and stressful. Learners jump between reading static documentation, solving isolated algorithmic challenges, and watching video tutorials without structured, real-time feedback on their architectural and conceptual comprehension.
 
 **AI Technical Interview Coach** provides a focused, low-friction technical mock interview simulator.
-- **Phase 1 (Immediate 60-Minute Build Scope):** A deterministic, fast, zero-LLM baseline that eliminates external API latency and cost, built to validate the complete user loop: Landing Page → Topic Selection → Quiz Interface → Instant Evaluation & Rubric Breakdown.
-- **Phase 2 (Drop-In LLM Enhancement):** Seamlessly replaces the static question/evaluation service layer with dynamic LLM generation and adaptive open-ended feedback without altering frontend contracts or REST API schemas.
+- **Phase 1 (Baseline Scoped MVP):** A deterministic, fast, zero-LLM baseline that eliminates external API latency and cost, built to validate the complete user loop: Landing Page → Topic Selection → Quiz Interface → Instant Evaluation & Rubric Breakdown.
+- **Phase 2 (Groq LLM Integration & Dual-Level Calibration):** Features dynamic, difficulty-aware technical MCQ generation powered by Groq (`openai/gpt-oss-120b`). Candidates configure both their **Seniority Level** (Junior 0-2y, Mid-Level 3-5y, Senior 5+y) and **Topic Difficulty** (Easy, Medium, Hard). Includes **Question Skipping** (with complete scorecard generation even if all questions are skipped), a stylish **Print Summary** action with dedicated print stylesheets, and zero client-side secret leakage.
 
-> **Scope Note on Timing:** Phase 1 is untimed. To eliminate scope creep during the 60-minute build window, no timer UI, countdown state, or auto-submit logic is included in Phase 1. Visible countdown clocks and auto-submit triggers are deferred to Phase 2 (see §3).
+> **Scope Note on Timing:** Phase 1 and Phase 2 are focused on deliberate conceptual accuracy and diagnostics. Visible countdown clocks and auto-submit triggers remain optional future roadmap items.
 
 ---
 
@@ -37,61 +37,29 @@ Technical interview preparation for software engineering candidates is often fra
 
 ## 3. Scope & Feature Matrix
 
-| Capability / Feature | Phase | Priority | Scope Rationale & Technical Decision |
+| Capability / Feature | Phase | Status | Scope Rationale & Technical Decision |
 | :--- | :--- | :--- | :--- |
-| **Topic Selection (DSA, System Design, LLD, Java, Spring)** | Phase 1 | P0 | Core entry criteria for interview configuration. |
-| **Deterministic Question Bank (Static JSON, 3 Qs/topic)** | Phase 1 | P0 | Eliminates external API dependencies, token consumption, and rate limits for the 60-minute build. |
-| **Server-Side Answer Masking & Evaluation** | Phase 1 | P0 | Prevents answers from leaking in client DevTools; establishes the exact contract needed for LLM grading. |
-| **Answer & Topic Validation on Submit** | Phase 1 | P0 | Rejects mismatched `question_id`s, out-of-bounds options, or malformed payloads with explicit 4xx responses (§5.3). |
-| **Scorecard & Detailed Question Review** | Phase 1 | P0 | Delivers immediate candidate value with explicit rationales for each option. |
-| **Health Probe & Cold-Start Ping (`GET /health`)** | Phase 1 | P0 | Pre-warms sleeping Render free-tier instances upon landing. |
-| **Structured Backend Stdout Logging** | Phase 1 | P0 | Minimal observability needed to debug a live deployment without external logging infrastructure. |
-| **Countdown Timer + Auto-Submit** | Phase 2 | P1 | Requires client-side timer synchronization, expiry handling, and partial-submission semantics; deferred to Phase 2. |
-| **Dynamic LLM Question Generation** | Phase 2 | P1 | Requires prompt engineering, schema validation, and retry logic; deferred to Phase 2. |
-| **Open-Ended Text / Audio Voice Responses** | Phase 2 | P1 | Requires STT (Whisper), latency streaming, and prompt scoring rubrics; deferred to Phase 2. |
-| **User Authentication & Session Management (OAuth)** | Phase 2 | P2 | Adds session and database migration overhead unnecessary for MVP validation. |
-| **Historical Analytics & Dashboards** | Phase 2 | P2 | Requires persistent database storage; `sessionStorage` suffices for Phase 1. |
-| **Rate Limiting & Abuse Protection** | Phase 2 | P2 | No cost-bearing LLM endpoints exist in Phase 1; revisit prior to Phase 2 live rollout. |
+| **Topic Selection (DSA, System Design, LLD, Java, Spring)** | Phase 1 | Implemented | Core entry criteria for interview configuration across 5 technical domains. |
+| **Deterministic Question Bank (Static JSON, 3 Qs/topic)** | Phase 1 | Implemented | Deterministic offline fallback when `QUIZ_PROVIDER=mock` or LLM credentials unavailable. |
+| **Server-Side Answer Masking & Evaluation** | Phase 1 | Implemented | Prevents answers from leaking in client DevTools; zero-leakage security invariant. |
+| **Answer & Topic Validation on Submit** | Phase 1 | Implemented | Rejects mismatched `question_id`s, out-of-bounds options, or malformed payloads with explicit 4xx responses. |
+| **Scorecard & Detailed Question Review** | Phase 1 | Implemented | Delivers immediate candidate value with explicit rationales for each option. |
+| **Health Probe & Cold-Start Ping (`GET /health`)** | Phase 1 | Implemented | Pre-warms sleeping backend instances upon landing. |
+| **Structured Backend Stdout Logging** | Phase 1 | Implemented | Minimal observability to debug deployments and Groq generation cycles without external overhead. |
+| **Dynamic LLM Question Generation (Groq)** | Phase 2 | Implemented | Powered by Groq `openai/gpt-oss-120b` with JSON schema enforcement, dual-attempt retry, and 30m session cache. |
+| **Dual-Level Difficulty Calibration** | Phase 2 | Implemented | Calibrated across Seniority (`junior`, `mid`, `senior`) and Topic Complexity (`easy`, `medium`, `hard`). |
+| **Question Skipping & Skip-All Summary** | Phase 2 | Implemented | Candidates can skip any or all questions; server generates complete diagnostic review (`selected_option: -1`). |
+| **Executive Print Summary Action** | Phase 2 | Implemented | Stylish "Print Summary" button on `/results` with `@media print` clean report layout. |
+| **Countdown Timer + Auto-Submit** | Roadmap | Deferred | Optional future enhancement; current design prioritizes conceptual focus. |
+| **Open-Ended Text / Audio Voice Responses** | Roadmap | Deferred | Requires STT (Whisper), latency streaming, and prompt scoring rubrics. |
+| **User Authentication & Persistent Profiles** | Roadmap | Deferred | In-memory session cache and `sessionStorage` suffice for candidate privacy and instant evaluation. |
 
-### 3.1. Explicit Non-Goals (Phase 1)
-* No persistent database (no PostgreSQL/MySQL/MongoDB); state is client-managed via `sessionStorage`.
-* No user accounts or authentication flows.
-* No question shuffling/randomization across attempts (deterministic set of 3 questions per topic).
-* Responsive web application only; no native mobile wrapper.
-* No partial save or resume-later mechanism across devices.
-
----
-
-## 4. System Architecture & Technical Specifications
-
-```
-  ┌────────────────────────────────────────────────────────┐
-  │                   Next.js Frontend                     │
-  │               (Vercel: App Router)                     │
-  │                                                        │
-  │   / (Landing) ──> /interview (Config/Quiz) ──> /results│
-  └──────────────────────────┬─────────────────────────────┘
-                             │ HTTPS / JSON
-                             │ (CORS Enabled)
-  ┌──────────────────────────▼─────────────────────────────┐
-  │                   FastAPI Backend                      │
-  │                (Render: Web Service)                   │
-  │                                                        │
-  │  [Routers: /api/v1] ──> [QuizService Abstract Class]   │
-  │                                   │                    │
-  │             ┌─────────────────────┴──────────────────┐ │
-  │             ▼                                        ▼ │
-  │     MockQuizService                          LLMQuizService    │
-  │   (Phase 1: JSON Bank)                     (Phase 2: LLM API)  │
-  └────────────────────────────────────────────────────────┘
-```
-
-### 4.1. Architectural Rules
+### 3.1. Architectural Rules & Invariants
 * **Zero Secret Leaks:** The `QuestionPublic` schema served to the frontend **never** contains `correct_option_index` or `explanation`. Evaluation happens strictly server-side.
-* **Interface Abstraction:** Controllers depend exclusively on the abstract `QuizService`. Phase 2 swaps `MockQuizService` for `LLMQuizService` via dependency injection without changing route definitions.
-* **Environment Isolation:** Base URLs and allowed origins are injected via environment variables (`NEXT_PUBLIC_API_BASE_URL` and `ALLOWED_ORIGINS`).
-* **Fail Loud, Fail Typed:** Every endpoint adheres to a defined error-response schema (`ErrorDetail`); clients never receive untyped raw string errors.
-* **API Versioning:** All functional routes are anchored under `/api/v1/...` to protect against path-level breaking changes in subsequent phases.
+* **Interface Abstraction:** Controllers depend exclusively on the abstract `QuizService`. `LLMQuizService` (Groq) and `MockQuizService` adhere to the exact same contract.
+* **Dual Calibration:** All questions generated dynamically correlate with both the user's targeted Seniority and Topic Difficulty.
+* **Graceful Degradation:** If `GROQ_API_KEY` is absent or `QUIZ_PROVIDER=mock`, the application automatically falls back to `MockQuizService` with zero downtime or crash.
+* **State & Caching Invariant:** Dynamic questions are cached server-side with a 30-minute TTL per session. Submissions referencing expired sessions receive HTTP 410 `SESSION_EXPIRED`. Note: In-memory cache is per-process; multi-worker production deployments should back this with Redis or PostgreSQL.
 
 ---
 
@@ -99,8 +67,11 @@ Technical interview preparation for software engineering candidates is often fra
 
 ### 5.1. Pydantic Models (`backend/app/models/schemas.py`)
 ```python
-from pydantic import BaseModel, Field
-from typing import Dict, List
+from typing import Dict, List, Literal, Optional
+from pydantic import BaseModel, ConfigDict, Field
+
+Seniority = Literal["junior", "mid", "senior"]
+Difficulty = Literal["easy", "medium", "hard"]
 
 
 class Topic(BaseModel):
@@ -115,6 +86,8 @@ class QuestionPublic(BaseModel):
     topic_id: str
     text: str
     options: List[str]
+    seniority: Optional[str] = "mid"
+    difficulty: Optional[str] = "medium"
 
 
 class QuestionInternal(QuestionPublic):
@@ -122,17 +95,33 @@ class QuestionInternal(QuestionPublic):
     explanation: str
 
 
+class QuizGenerateResponse(BaseModel):
+    session_id: Optional[str] = Field(
+        None, description="UUID correlating generation with server-side evaluation"
+    )
+    questions: List[QuestionPublic] = Field(
+        ..., description="List of generated questions with secrets masked"
+    )
+    seniority: str = Field("mid", description="Seniority tier used for generation")
+    difficulty: str = Field("medium", description="Topic difficulty used for generation")
+    model_config = ConfigDict(frozen=True)
+
+
 class QuizSubmission(BaseModel):
     topic_id: str
+    session_id: Optional[str] = Field(
+        None, description="Session ID returned during quiz generation"
+    )
     answers: Dict[str, int] = Field(
-        ..., description="Mapping of question_id -> selected_option_index"
+        ...,
+        description="Mapping of question_id -> selected_option_index (or -1 if skipped)",
     )
 
 
 class QuestionReview(BaseModel):
     question_id: str
     text: str
-    selected_option: int
+    selected_option: int  # -1 represents a skipped question
     correct_option: int
     is_correct: bool
     explanation: str
@@ -151,29 +140,17 @@ class ErrorDetail(BaseModel):
     message: str
 ```
 
-### 5.2. Question Bank Data Format (`backend/app/data/questions.json`)
-The file is keyed by `topic_id` so lookups are bounded $O(1)$ operations rather than linear table scans:
-```json
-{
-  "dsa": [
-    {
-      "id": "dsa-01",
-      "topic_id": "dsa",
-      "text": "What is the average time complexity of searching in a balanced Binary Search Tree?",
-      "options": ["O(1)", "O(log n)", "O(n)", "O(n log n)"],
-      "correct_option_index": 1,
-      "explanation": "A balanced BST halves the search space at each level, leading to an O(log n) lookup."
-    }
-  ]
-}
-```
+### 5.2. Question Bank & LLM Dual Calibration
+- **Mock Fallback:** When `QUIZ_PROVIDER=mock`, questions are sourced deterministically from `backend/app/data/questions.json` (keyed by `topic_id`).
+- **Dynamic Groq Generation:** When `QUIZ_PROVIDER=groq`, `LLMQuizService` invokes model `openai/gpt-oss-120b` with temperature `0.3` and JSON schema enforcement, incorporating both Seniority and Difficulty calibration rules into system prompts.
+- **Session Cache:** Generated `QuestionInternal` instances are stored in a server-side session cache keyed by `session_id` with a 30-minute TTL.
 
 ### 5.3. REST Endpoints & Status Codes
-All operational endpoints are prefixed with `/api/v1` (except the root-level health probe). Standard error responses return `ErrorDetail`:
+All operational endpoints are prefixed with `/api/v1` (except root-level health probe). Standard error responses return `ErrorDetail`:
 ```json
 {
-  "code": "TOPIC_NOT_FOUND",
-  "message": "No topic exists with id 'unknown'."
+  "code": "INVALID_SENIORITY",
+  "message": "Invalid seniority 'lead'. Must be one of: junior, mid, senior"
 }
 ```
 
@@ -185,21 +162,30 @@ All operational endpoints are prefixed with `/api/v1` (except the root-level hea
 * **Endpoint:** `GET /api/v1/topics`
 * **Response:** `200 OK` → `List[Topic]`
 
-#### 3. Generate / Fetch Questions
-* **Endpoint:** `POST /api/v1/quiz/generate?topic_id={topic_id}`
-* **Success:** `200 OK` → `List[QuestionPublic]`
-* **Errors:**
-  * `404 Not Found` → `code: "TOPIC_NOT_FOUND"` (invalid `topic_id`)
-  * `422 Unprocessable Entity` → FastAPI schema validation failure
-
-#### 4. Evaluate Submission
-* **Endpoint:** `POST /api/v1/quiz/evaluate`
-* **Request Payload:** `QuizSubmission`
-* **Success:** `200 OK` → `QuizResult`
+#### 3. Generate / Fetch Questions (Dual Calibrated)
+* **Endpoint:** `POST /api/v1/quiz/generate?topic_id={id}&seniority={seniority}&difficulty={difficulty}`
+* **Query Parameters:**
+  * `topic_id`: string (`dsa`, `system_design`, `lld`, `java`, `spring`)
+  * `seniority`: string (`junior`, `mid`, `senior`; default: `mid`)
+  * `difficulty`: string (`easy`, `medium`, `hard`; default: `medium`)
+* **Success:** `200 OK` → `QuizGenerateResponse` (includes `session_id` and masked `questions`)
 * **Errors:**
   * `404 Not Found` → `code: "TOPIC_NOT_FOUND"`
-  * `400 Bad Request` → `code: "QUESTION_TOPIC_MISMATCH"` (a question does not belong to the topic)
-  * `400 Bad Request` → `code: "INVALID_OPTION_INDEX"` (selected index out of bounds)
+  * `422 Unprocessable Entity` → `code: "INVALID_SENIORITY"` or `"INVALID_DIFFICULTY"`
+  * `502 Bad Gateway` → `code: "LLM_GENERATION_FAILED"` (Groq timeout or unparseable JSON after retries)
+
+#### 4. Evaluate Submission (with Skipping Support)
+* **Endpoint:** `POST /api/v1/quiz/evaluate`
+* **Request Payload:** `QuizSubmission` (`session_id` + `answers`)
+* **Success:** `200 OK` → `QuizResult`
+* **Skipping Behavior:**
+  * Skipped questions (represented as `-1` in `answers` or omitted from dict) are evaluated as `is_correct = False`, `selected_option = -1`, while returning the full correct option and explanation.
+  * If a candidate skips **all** questions, the backend successfully generates the full diagnostic scorecard with `score: 0`, `percentage: 0.0`, and full reviews for all questions.
+* **Errors:**
+  * `404 Not Found` → `code: "TOPIC_NOT_FOUND"`
+  * `410 Gone` → `code: "SESSION_EXPIRED"` (submission sent after 30-minute session TTL or invalid session ID)
+  * `400 Bad Request` → `code: "QUESTION_TOPIC_MISMATCH"`
+  * `400 Bad Request` → `code: "INVALID_OPTION_INDEX"` (non-skipped index out of bounds)
   * `422 Unprocessable Entity` → Missing required body fields
 
 ---
@@ -208,32 +194,31 @@ All operational endpoints are prefixed with `/api/v1` (except the root-level hea
 
 ### 6.1. Screen 1: Landing Page (`/`)
 * **Layout:** Centered hero section, value proposition headline, primary CTA ("Start Mock Interview"), and 5 category feature preview cards.
-* **Cold-Start Trigger:** Fires a non-blocking `GET /health` in a background `useEffect` to pre-warm Render before user navigation.
-* **State Behavior:** Static render; navigation is not blocked by pending health responses.
+* **Track Matrix Preview:** Updated headline to `"Targeted Technical Engineering Tracks"` and subline: `"Calibrated across 3 Seniority Tiers and 3 Difficulty Levels for precision evaluation."`
+* **Cold-Start Trigger:** Fires a non-blocking `GET /health` in a background `useEffect`.
 
 ### 6.2. Screen 2: Topic Selection & Quiz Engine (`/interview`)
 Unified view managing two internal client states:
 1. **Topic Selection (`view === 'SELECT_TOPIC'`):**
-   * Responsive grid of selectable track cards.
-   * `Loading`: Skeleton card placeholders during `GET /api/v1/topics`.
-   * `Error`: Retry button with an informational alert: *"Backend is waking up; please retry in ~30 seconds."*
-   * `Selected`: Card highlighting and enabling the "Begin Interview" CTA.
+   * Step 1: Responsive grid of 5 selectable track cards.
+   * Step 2: Seniority Tier pill selector (`Junior 0-2y`, `Mid-Level 3-5y`, `Senior / Staff 5+y`).
+   * Step 3: Topic Complexity pill selector (`Easy`, `Medium`, `Hard`).
+   * "Begin Interview" CTA is enabled only when Track, Seniority, and Difficulty are selected. Shows loading spinner during dynamic generation.
 2. **Active Quiz (`view === 'ACTIVE_QUIZ'`):**
-   * Top bar displaying current topic badge and progress indicator (`Question X of Y`).
+   * Top bar displaying current Track badge, Seniority badge, Difficulty badge, and progress indicator (`Question X of Y`).
    * Question prompt container with 4 single-select choice buttons.
-   * Navigation footer: "Previous", "Next", and "Submit Interview" (on final question).
-   * **Guard Rail:** "Submit Interview" button is disabled until an option is selected for all questions.
-   * **Client Persistence:** Current answers persist in React state and synchronize to `sessionStorage` (`interview_answers`) to prevent data loss on browser refresh.
-   * **Submission Failure Handling:** If `POST /api/v1/quiz/evaluate` fails, an inline alert displays with a "Retry Submission" action while retaining answers.
+   * **Question Skipping:** Dedicated **"Skip Question"** button on the bottom left, positioned opposite to "Next" / "Submit".
+   * **Submit Guard:** Unlocked on the final question even if questions were skipped.
+   * **Session Persistence:** `session_id`, `selectedSeniority`, `selectedDifficulty`, and `answers` synchronize to `sessionStorage` for seamless browser refresh recovery.
+   * **Session Expiry (410) Handling:** Displays an inline alert with a CTA to return to track selection when an expired session is detected.
 
 ### 6.3. Screen 3: Scorecard & Detailed Review (`/results`)
 * **Components:**
   * Overall score percentage badge with color-coded status ($\ge 70\%$ = Pass, $< 70\%$ = Needs Improvement).
-  * Detailed Question Breakdown: Displays candidate choice, pass/fail tag, correct option indicator (if incorrect), and full explanation.
-  * Action controls: "Retake Interview" (wipes `sessionStorage` and navigates to `/interview`) and "Return Home".
-* **State Behavior:**
-  * `Loading`: Evaluation spinner during submission calculation.
-  * `Empty Guard`: If accessed directly without an active submission payload, cleanly redirects to `/interview`.
+  * Skipped Question Indicators: Displays *"Candidate Skipped This Question"* tag alongside the correct answer rationale.
+  * **Executive Print Summary Action:** Stylish, concise **"Print Summary"** button with printer icon (`lucide-react`) in the action bar.
+  * Print Stylesheet (`@media print`): Hides header, footer, action buttons, and backdrops, rendering a clean, high-contrast, multi-page printable scorecard.
+  * Action controls: "Retake Interview" and "Return Home".
 
 ---
 
@@ -308,7 +293,18 @@ Phase 1 verification requires that on production deployed URLs (not localhost):
 
 ---
 
-## 10. Changelog Summary (v1.0.0 → v1.1.0)
+## 10. Changelog Summary
+
+### v1.2.0 (Phase 2 LLM Integration & Dual-Level Calibration)
+* **Groq LLM Service (`openai/gpt-oss-120b`):** Implemented dynamic MCQ generation with strict JSON schema adherence, timeout handling, dual-attempt retry, and zero client-side secret exposure.
+* **Dual-Level Calibration:** Added calibration across Seniority tiers (`junior`, `mid`, `senior`) and Topic Complexity levels (`easy`, `medium`, `hard`) throughout backend validation, LLM prompt engineering, and frontend UI selectors.
+* **Session Management & Expiry (410):** Introduced `QuizGenerateResponse` with `session_id` correlating dynamic questions to server evaluations with 30-minute in-memory caching and `410 SESSION_EXPIRED` handling.
+* **Question Skipping & Complete Scorecards:** Introduced a dedicated "Skip Question" button on the question interface (left side opposite Next/Submit) and server-side support for `-1` / omitted answers, enabling candidates to skip any or all questions while still receiving an itemized diagnostic scorecard with correct answers and explanations.
+* **Executive Print Summary:** Added a stylish "Print Summary" button to `/results` with `@media print` CSS optimization for report generation.
+* **Landing Page Copy Alignment:** Refactored track matrix headline to "Targeted Technical Engineering Tracks" calibrated across all seniority levels.
+* **Comprehensive Test Suite:** Added 24 backend unit/integration tests (`test_quiz.py`, `test_llm_quiz.py`) and a 5-phase end-to-end integration runner validating zero secret leaks, dual calibration, skip-all summary generation, and session expiration.
+
+### v1.1.0 (Phase 1 Baseline Polish)
 * **Scope Boundary Clarification:** Resolved the "Timed Quiz" inconsistency; timers are explicitly excluded from Phase 1 and slated for Phase 2.
 * **Payload Validation Rules:** Added explicit `400 QUESTION_TOPIC_MISMATCH` and `400 INVALID_OPTION_INDEX` checks to eliminate incorrect evaluations.
 * **Standardized Error Contracts:** Formalized `ErrorDetail` Pydantic model across all non-2xx API responses.

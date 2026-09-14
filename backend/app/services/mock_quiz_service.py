@@ -13,6 +13,7 @@ from app.models.schemas import (
     QuestionInternal,
     QuestionPublic,
     QuestionReview,
+    QuizGenerateResponse,
     QuizResult,
     QuizSubmission,
     Topic,
@@ -88,7 +89,9 @@ class MockQuizService(QuizService):
         """Retrieve available interview tracks."""
         return self.TOPICS
 
-    def generate_quiz(self, topic_id: str) -> List[QuestionPublic]:
+    async def generate_quiz(
+        self, topic_id: str, seniority: str = "mid", difficulty: str = "medium"
+    ) -> QuizGenerateResponse:
         """Return public questions for a topic, stripping answers and explanations."""
         if topic_id not in self._questions_by_topic:
             logger.warning(f"Rejecting quiz generation for unknown topic_id: '{topic_id}'")
@@ -102,13 +105,23 @@ class MockQuizService(QuizService):
                 topic_id=q.topic_id,
                 text=q.text,
                 options=q.options,
+                seniority=seniority,
+                difficulty=difficulty,
             )
             for q in internal_questions
         ]
-        logger.info(f"Generated {len(public_questions)} public questions for topic '{topic_id}'")
-        return public_questions
+        logger.info(
+            f"Generated {len(public_questions)} public questions for topic '{topic_id}' "
+            f"[{seniority}/{difficulty}]"
+        )
+        return QuizGenerateResponse(
+            session_id=None,
+            questions=public_questions,
+            seniority=seniority,
+            difficulty=difficulty,
+        )
 
-    def evaluate_quiz(self, submission: QuizSubmission) -> QuizResult:
+    async def evaluate_quiz(self, submission: QuizSubmission) -> QuizResult:
         """Evaluate submission against ground truth with strict validation."""
         topic_id = submission.topic_id
         if topic_id not in self._questions_by_topic:
@@ -127,7 +140,10 @@ class MockQuizService(QuizService):
                 raise QuestionTopicMismatchException(q_id, topic_id)
 
             question = topic_questions_map[q_id]
-            if selected_idx < 0 or selected_idx >= len(question.options):
+            # -1 represents a question skipped by candidate; otherwise validate bounds
+            if selected_idx != -1 and (
+                selected_idx < 0 or selected_idx >= len(question.options)
+            ):
                 logger.warning(
                     f"Submission validation error: invalid option {selected_idx} for question '{q_id}'"
                 )
@@ -135,14 +151,18 @@ class MockQuizService(QuizService):
                     q_id, selected_idx, len(question.options)
                 )
 
-        # Grade each question
+        # Grade each question (handles answered, partially answered, or all skipped)
         reviews: List[QuestionReview] = []
         score = 0
         total = len(topic_questions)
 
         for question in topic_questions:
             selected_option = submission.answers.get(question.id, -1)
-            is_correct = selected_option == question.correct_option_index
+            is_correct = (
+                selected_option == question.correct_option_index
+                if selected_option != -1
+                else False
+            )
 
             if is_correct:
                 score += 1

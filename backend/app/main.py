@@ -8,9 +8,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
-from app.api.v1.health import router as health_router
-from app.api.v1.quiz import router as quiz_router
-from app.api.v1.topics import router as topics_router
+from app.api.v1.endpoints.health import router as health_router
+from app.api.v1.router import api_router
 from app.core.config import settings
 from app.core.exceptions import AppException
 from app.core.logging import logger
@@ -29,6 +28,7 @@ app = FastAPI(
 app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.allowed_origins,
+    allow_origin_regex=r"^https://.*\.vercel\.app$",
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -40,26 +40,35 @@ app.add_middleware(
 # ------------------------------------------------------------------------------
 @app.middleware("http")
 async def log_requests_middleware(request: Request, call_next):
-    """Log inbound request details, latency, and response status codes."""
+    """Log inbound request details, sanitized parameters, latency, and response status codes."""
     start_time = time.perf_counter()
     topic_id = request.query_params.get("topic_id")
-    topic_log = f" [topic_id={topic_id}]" if topic_id else ""
+    seniority = request.query_params.get("seniority")
+    difficulty = request.query_params.get("difficulty")
+    param_tags = []
+    if topic_id:
+        param_tags.append(f"topic_id={topic_id}")
+    if seniority:
+        param_tags.append(f"seniority={seniority}")
+    if difficulty:
+        param_tags.append(f"difficulty={difficulty}")
+    params_str = f" [{', '.join(param_tags)}]" if param_tags else ""
 
-    logger.info(f"Incoming: {request.method} {request.url.path}{topic_log}")
+    logger.info(f"Incoming: {request.method} {request.url.path}{params_str}")
 
     try:
         response = await call_next(request)
         process_time_ms = (time.perf_counter() - start_time) * 1000
         logger.info(
-            f"Completed: {request.method} {request.url.path} -> "
-            f"Status {response.status_code} ({process_time_ms:.2f}ms)"
+            f"Completed: {request.method} {request.url.path}{params_str} -> "
+            f"Status {response.status_code} (duration_ms={process_time_ms:.2f})"
         )
         return response
     except Exception as exc:
         process_time_ms = (time.perf_counter() - start_time) * 1000
         logger.exception(
-            f"Unhandled exception on {request.method} {request.url.path} "
-            f"({process_time_ms:.2f}ms): {exc}"
+            f"Unhandled exception on {request.method} {request.url.path}{params_str} "
+            f"(duration_ms={process_time_ms:.2f}): {exc}"
         )
         raise exc
 
@@ -127,6 +136,4 @@ async def handle_general_exception(_: Request, exc: Exception) -> JSONResponse:
 app.include_router(health_router)
 
 # Versioned API routes under /api/v1
-app.include_router(health_router, prefix="/api/v1")
-app.include_router(topics_router, prefix="/api/v1")
-app.include_router(quiz_router, prefix="/api/v1")
+app.include_router(api_router, prefix="/api/v1")

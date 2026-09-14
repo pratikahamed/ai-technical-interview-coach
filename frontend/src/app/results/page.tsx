@@ -3,14 +3,26 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { RotateCcw, Home, Loader2, Award } from "lucide-react";
-import { Header } from "@/components/common/Header";
-import { Footer } from "@/components/common/Footer";
-import { ScoreGauge } from "@/components/results/ScoreGauge";
-import { PerformanceSummary } from "@/components/results/PerformanceSummary";
-import { QuestionReviewCard } from "@/components/results/QuestionReviewCard";
-import { STORAGE_KEYS } from "@/lib/constants";
-import { QuizResult } from "@/types/quiz";
+import {
+  RotateCcw,
+  Home,
+  Loader2,
+  Award,
+  Printer,
+} from "lucide-react";
+import { ScoreGauge } from "@/components/modules/score-gauge";
+import { safeStorage } from "@/hooks/use-session-storage";
+import { QuizResult } from "@/types";
+import { Button } from "@/components/ui/button";
+
+const STORAGE_KEYS = {
+  ACTIVE_TOPIC: "ai_interview_active_topic",
+  ACTIVE_SENIORITY: "ai_interview_active_seniority",
+  ACTIVE_DIFFICULTY: "ai_interview_active_difficulty",
+  ACTIVE_SESSION_ID: "ai_interview_active_session_id",
+  ACTIVE_ANSWERS: "ai_interview_active_answers",
+  QUIZ_RESULT: "ai_interview_quiz_result",
+};
 
 export default function ResultsPage() {
   const router = useRouter();
@@ -18,129 +30,107 @@ export default function ResultsPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (typeof window === "undefined") return;
-
-    try {
-      const storedResult = sessionStorage.getItem(STORAGE_KEYS.QUIZ_RESULT);
-      if (!storedResult) {
-        // Direct access empty guard per PRD §6.3
+    const timer = setTimeout(() => {
+      try {
+        const parsed = safeStorage.getJSON<QuizResult>(STORAGE_KEYS.QUIZ_RESULT);
+        if (!parsed) {
+          router.replace("/interview");
+          return;
+        }
+        setResult(parsed);
+      } catch {
         router.replace("/interview");
-        return;
+      } finally {
+        setLoading(false);
       }
+    }, 0);
 
-      const parsed: QuizResult = JSON.parse(storedResult);
-      setResult(parsed);
-    } catch {
-      router.replace("/interview");
-    } finally {
-      setLoading(false);
-    }
+    return () => clearTimeout(timer);
   }, [router]);
 
   const handleRetake = () => {
-    try {
-      sessionStorage.removeItem(STORAGE_KEYS.QUIZ_RESULT);
-      sessionStorage.removeItem(STORAGE_KEYS.ACTIVE_ANSWERS);
-      sessionStorage.removeItem(STORAGE_KEYS.ACTIVE_TOPIC);
-    } catch {
-      // ignore
-    }
+    safeStorage.removeItem(STORAGE_KEYS.QUIZ_RESULT);
+    safeStorage.removeItem(STORAGE_KEYS.ACTIVE_ANSWERS);
+    safeStorage.removeItem(STORAGE_KEYS.ACTIVE_TOPIC);
+    safeStorage.removeItem(STORAGE_KEYS.ACTIVE_SESSION_ID);
+    safeStorage.removeItem(STORAGE_KEYS.ACTIVE_SENIORITY);
+    safeStorage.removeItem(STORAGE_KEYS.ACTIVE_DIFFICULTY);
     router.push("/interview");
+  };
+
+  const handlePrint = () => {
+    if (typeof window !== "undefined") {
+      window.print();
+    }
   };
 
   if (loading || !result) {
     return (
-      <div className="min-h-screen bg-surface-container-lowest flex items-center justify-center">
-        <Loader2 className="w-8 h-8 text-primary animate-spin" />
+      <div className="min-h-screen bg-[#060709] flex items-center justify-center">
+        <Loader2 className="w-8 h-8 text-cyan-400 animate-spin" />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-surface-container-lowest text-on-surface relative selection:bg-primary selection:text-on-primary">
-      {/* Background ambient lighting and grid pattern */}
-      <div className="pointer-events-none fixed inset-0 bg-grid-tech z-0 opacity-30" />
-      <div className="pointer-events-none fixed top-0 left-1/2 -translate-x-1/2 w-[700px] h-[250px] bg-primary/10 blur-[140px] rounded-full z-0" />
+    <div className="min-h-screen flex flex-col bg-[#060709] text-slate-100 relative selection:bg-cyan-500/20 selection:text-cyan-200">
+      <div className="pointer-events-none fixed inset-0 bg-grid-tech z-0 opacity-25" />
+      <div className="pointer-events-none fixed top-0 left-1/2 -translate-x-1/2 w-[700px] h-[250px] bg-cyan-500/10 blur-[140px] rounded-full z-0" />
 
-      <Header />
-
-      <main className="relative z-10 w-full pt-20 pb-24 flex-1">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-10">
-          {/* Top Headline */}
+      <main className="relative z-10 w-full pt-20 pb-16 flex-1">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
+          {/* Header Title & Completed Pill */}
           <div className="text-center space-y-2">
-            <div className="inline-flex items-center gap-2 font-mono text-xs text-tertiary px-3 py-1 rounded-full bg-tertiary/10 border border-tertiary/30 mb-2">
+            <div className="inline-flex items-center gap-1.5 font-mono text-xs text-emerald-400 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/30 specular-rim">
               <Award className="w-3.5 h-3.5" />
-              <span>Assessment Completed • Server-Side Scored</span>
+              <span>Assessment Completed // Server-Side Graded</span>
             </div>
-            <h1 className="text-3xl sm:text-4xl font-semibold tracking-tight text-on-surface">
-              Technical Scorecard &amp; Rubric Diagnostic
+            <h1 className="text-2xl sm:text-4xl font-bold tracking-tight text-white">
+              Technical Scorecard & Calibration
             </h1>
-            <p className="text-sm sm:text-base text-on-surface-variant max-w-lg mx-auto">
-              Staff-calibrated benchmark results. Review your architectural choices
-              and invariant proofs below.
+            <p className="text-xs sm:text-sm text-slate-400 max-w-lg mx-auto">
+              Deterministic benchmark results for{" "}
+              <strong className="text-slate-200 uppercase font-mono">
+                {result.topic_id}
+              </strong>
+              . Review composite metrics and proofs below.
             </p>
           </div>
 
-          {/* Radial Score Gauge */}
-          <ScoreGauge
-            score={result.score}
-            total={result.total}
-            percentage={result.percentage}
-          />
+          {/* Core Score Gauge & Granular Diagnostics */}
+          <ScoreGauge result={result} onRetake={handleRetake} />
 
-          {/* Performance Summary Strip */}
-          <PerformanceSummary
-            topicId={result.topic_id}
-            score={result.score}
-            total={result.total}
-            percentage={result.percentage}
-          />
+          {/* Action Bar */}
+          <div className="pt-6 border-t border-outline flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div className="flex items-center gap-3 w-full sm:w-auto">
+              <Button
+                variant="primary"
+                onClick={handleRetake}
+                className="flex-1 sm:flex-none gap-2"
+              >
+                <RotateCcw className="w-4 h-4" />
+                <span>Retake Assessment</span>
+              </Button>
 
-          {/* Detailed Question Review List */}
-          <div className="space-y-6 pt-4">
-            <div className="flex items-center justify-between pb-2 border-b border-outline-variant/40">
-              <h2 className="font-semibold text-lg sm:text-xl text-on-surface tracking-tight">
-                Granular Question Diagnostics
-              </h2>
-              <span className="font-mono text-xs text-on-surface-variant">
-                {result.reviews.length} Scenarios Evaluated
-              </span>
+              <Button
+                variant="secondary"
+                onClick={handlePrint}
+                className="flex-1 sm:flex-none gap-2"
+              >
+                <Printer className="w-4 h-4 text-cyan-400" />
+                <span>Print Scorecard</span>
+              </Button>
             </div>
 
-            <div className="space-y-5">
-              {result.reviews.map((review, idx) => (
-                <QuestionReviewCard
-                  key={review.question_id}
-                  review={review}
-                  index={idx}
-                />
-              ))}
-            </div>
-          </div>
-
-          {/* Action Controls */}
-          <div className="pt-6 border-t border-outline-variant/40 flex flex-wrap items-center justify-center gap-4">
-            <button
-              type="button"
-              onClick={handleRetake}
-              className="inline-flex items-center gap-2 px-6 py-3 rounded-lg bg-gradient-to-r from-primary-container to-secondary text-on-primary-container font-semibold text-sm shadow-[0_0_20px_rgba(56,189,248,0.35)] hover:shadow-[0_0_28px_rgba(76,215,246,0.55)] transition-all cursor-pointer"
-            >
-              <RotateCcw className="w-4 h-4" />
-              <span>Retake Interview</span>
-            </button>
-
-            <Link
-              href="/"
-              className="inline-flex items-center gap-2 px-6 py-3 rounded-lg bg-surface-container hover:bg-surface-container-high text-on-surface font-semibold text-sm border border-outline-variant transition-all"
-            >
-              <Home className="w-4 h-4 text-primary" />
-              <span>Return Home</span>
+            <Link href="/" className="w-full sm:w-auto">
+              <Button variant="outline" className="w-full sm:w-auto gap-2">
+                <Home className="w-4 h-4 text-slate-400" />
+                <span>Return to Home</span>
+              </Button>
             </Link>
           </div>
         </div>
       </main>
-
-      <Footer />
     </div>
   );
 }

@@ -2,7 +2,12 @@
 
 from abc import ABC, abstractmethod
 from typing import List
-from app.models.schemas import QuestionPublic, QuizResult, QuizSubmission, Topic
+from app.models.schemas import (
+    QuizGenerateResponse,
+    QuizResult,
+    QuizSubmission,
+    Topic,
+)
 
 
 class QuizService(ABC):
@@ -14,11 +19,13 @@ class QuizService(ABC):
         pass
 
     @abstractmethod
-    def generate_quiz(self, topic_id: str) -> List[QuestionPublic]:
+    async def generate_quiz(
+        self, topic_id: str, seniority: str = "mid", difficulty: str = "medium"
+    ) -> QuizGenerateResponse:
         """Generate/fetch public questions for a given topic with answers stripped."""
         pass
 
     @abstractmethod
-    def evaluate_quiz(self, submission: QuizSubmission) -> QuizResult:
+    async def evaluate_quiz(self, submission: QuizSubmission) -> QuizResult:
         """Evaluate candidate submission against ground truth and produce detailed scorecard."""
         pass

@@ -45,3 +45,47 @@ class InvalidOptionIndexException(AppException):
             ),
             status_code=400,
         )
+
+
+class InvalidSeniorityException(AppException):
+    """Raised when an unrecognized seniority parameter is passed."""
+
+    def __init__(self, seniority: str):
+        super().__init__(
+            code="INVALID_SENIORITY",
+            message=f"Invalid seniority level '{seniority}'. Allowed: junior, mid, senior.",
+            status_code=422,
+        )
+
+
+class InvalidDifficultyException(AppException):
+    """Raised when an unrecognized difficulty parameter is passed."""
+
+    def __init__(self, difficulty: str):
+        super().__init__(
+            code="INVALID_DIFFICULTY",
+            message=f"Invalid difficulty level '{difficulty}'. Allowed: easy, medium, hard.",
+            status_code=422,
+        )
+
+
+class SessionExpiredException(AppException):
+    """Raised when an evaluation references an expired or non-existent quiz session."""
+
+    def __init__(self, session_id: str):
+        super().__init__(
+            code="SESSION_EXPIRED",
+            message="This quiz session has expired — please start a new interview.",
+            status_code=410,
+        )
+
+
+class LLMGenerationFailedException(AppException):
+    """Raised when dynamic LLM question generation fails or times out after retries."""
+
+    def __init__(self, message: str = "Failed to generate interview questions. Please retry."):
+        super().__init__(
+            code="LLM_GENERATION_FAILED",
+            message=message,
+            status_code=502,
+        )

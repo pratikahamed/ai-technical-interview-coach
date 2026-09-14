@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, JetBrains_Mono } from "next/font/google";
-import { BackendStatusWidget } from "@/components/common/BackendStatusWidget";
+import { Navbar } from "@/components/modules/navbar";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -16,11 +16,17 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || "https://ai-interview-coach.vercel.app"),
   title: "AI Technical Interview Coach | Precision Mock Assessments",
   description:
     "Calibrated evaluations for DSA, System Design, LLD, Core Java, and Spring Framework. Immediate server-side rubric scoring with zero drift.",
   icons: {
-    icon: "/logo.svg",
+    icon: "/favicon.ico",
+  },
+  openGraph: {
+    title: "AI Technical Interview Coach",
+    description: "Precision mock technical interviews with deterministic server-side evaluation.",
+    images: [{ url: "/og-image.png", width: 1200, height: 630 }],
   },
 };
 
@@ -32,11 +38,12 @@ export default function RootLayout({
   return (
     <html
       lang="en"
+      data-scroll-behavior="smooth"
       className={`${geistSans.variable} ${jetbrainsMono.variable} dark antialiased`}
     >
-      <body className="min-h-screen bg-surface-container-lowest text-on-surface font-sans selection:bg-primary selection:text-on-primary">
+      <body className="min-h-screen bg-[#060709] text-slate-100 font-sans selection:bg-cyan-500/20 selection:text-cyan-200">
+        <Navbar />
         {children}
-        <BackendStatusWidget />
       </body>
     </html>
   );
