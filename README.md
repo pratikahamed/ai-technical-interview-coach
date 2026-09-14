@@ -133,7 +133,6 @@ ai-interview-coach/
 │   ├── pyproject.toml
 │   └── requirements.txt
 ├── docs/
-│   ├── deployment-guide.md                 # Production deployment runbook (Render + Vercel)
 │   ├── design-brief.md                     # Raycast/Linear design tokens & WCAG 2.1 specs
 │   └── prd.md                              # Product Requirements Document
 ├── frontend/                               # Standalone Next.js application
