@@ -1,0 +1,207 @@
+{
+  "dsa": [
+    {
+      "id": "dsa-01",
+      "topic_id": "dsa",
+      "text": "What is the tightest asymptotic upper bound for searching an element in a balanced Binary Search Tree (e.g., AVL or Red-Black Tree) containing N nodes?",
+      "options": [
+        "O(1)",
+        "O(log N)",
+        "O(N)",
+        "O(N log N)"
+      ],
+      "correct_option_index": 1,
+      "explanation": "In an AVL or Red-Black Tree, self-balancing rotations guarantee that the maximum tree height is strictly bounded by O(log N). Since search traverses at most one root-to-leaf path, the time complexity is strictly O(log N)."
+    },
+    {
+      "id": "dsa-02",
+      "topic_id": "dsa",
+      "text": "When implementing Dijkstra's single-source shortest path algorithm on a directed graph with V vertices and E edges using a Fibonacci heap, what is the optimal asymptotic time complexity?",
+      "options": [
+        "O(V^2)",
+        "O(E log V)",
+        "O(E + V log V)",
+        "O(V + E log E)"
+      ],
+      "correct_option_index": 2,
+      "explanation": "A Fibonacci heap provides O(1) amortized time for decrease-key operations (executed at most E times) and O(log V) time for extract-min operations (executed V times). Combining these yields an optimal asymptotic bound of O(E + V log V)."
+    },
+    {
+      "id": "dsa-03",
+      "topic_id": "dsa",
+      "text": "In the Disjoint Set Union (Union-Find) data structure with both path compression and union by rank optimizations, what is the amortized time complexity per operation across M operations on N elements?",
+      "options": [
+        "O(1)",
+        "O(α(N)) where α is the inverse Ackermann function",
+        "O(log N)",
+        "O(log* N)"
+      ],
+      "correct_option_index": 1,
+      "explanation": "Combining path compression with union by rank/size flattens the tree dynamically during find queries, yielding an amortized time complexity of O(α(N)) per operation, where α(N) is the extremely slow-growing inverse Ackermann function (α(N) < 5 for all practical universe sizes)."
+    }
+  ],
+  "system-design": [
+    {
+      "id": "sys-01",
+      "topic_id": "system-design",
+      "text": "In a distributed key-value store with consistent hashing, how do virtual nodes (vnodes) address hash ring hotspot imbalances during node additions or removals?",
+      "options": [
+        "By enforcing synchronous master-slave replication across all physical nodes",
+        "By mapping each physical server to multiple pseudorandom points across the hash ring to uniformly distribute token ranges",
+        "By eliminating hash collisions using cryptographic SHA-512 salting on keys",
+        "By dynamically resizing the hash ring diameter whenever traffic exceeds 80% capacity"
+      ],
+      "correct_option_index": 1,
+      "explanation": "Virtual nodes map a single physical machine to hundreds of distinct token positions on the ring. This balances partition variance, ensures uniform key distribution across heterogeneous hardware, and prevents cascade rebalancing when a node joins or fails."
+    },
+    {
+      "id": "sys-02",
+      "topic_id": "system-design",
+      "text": "Under the CAP theorem, how does a CP distributed system (such as Apache ZooKeeper or Google Spanner) behave in the event of an unavoidable network partition between data centers?",
+      "options": [
+        "It returns stale cached data to ensure 100% read availability for all clients",
+        "It denies or halts write operations on partitioned minority nodes to guarantee linearizable consistency",
+        "It switches automatically to eventual consistency with client-side vector clock reconciliation",
+        "It drops TCP connections and falls back to asynchronous gossip consensus"
+      ],
+      "correct_option_index": 1,
+      "explanation": "A CP system prioritizes consistency over availability. When a partition occurs, partitions lacking a quorum/majority cannot safely accept writes without risking split-brain anomalies, and must reject or block requests until connectivity and quorum are restored."
+    },
+    {
+      "id": "sys-03",
+      "topic_id": "system-design",
+      "text": "Which architectural pattern best prevents a 'thundering herd' (cache stampede) on a downstream database when a high-traffic cache key expires simultaneously across millions of concurrent users?",
+      "options": [
+        "Round-robin load balancing at the reverse proxy",
+        "Distributed mutual exclusion locks (mutex) or probabilistic early expiration (XFetch algorithm)",
+        "Increasing database connection pool size proportionally with concurrency",
+        "Converting the cache eviction policy from LRU to LFU"
+      ],
+      "correct_option_index": 1,
+      "explanation": "Mutual exclusion locking ensures only one worker thread regenerates the expired cache entry while others wait or receive slightly stale data. Alternatively, the XFetch probabilistic early refresh algorithm asynchronously recomputes values before hard expiry, eliminating stampedes."
+    }
+  ],
+  "lld": [
+    {
+      "id": "lld-01",
+      "topic_id": "lld",
+      "text": "Which design pattern is best suited for decoupling the notification mechanism between an event-producing subject and multiple dynamic subscribers without tight coupling or compile-time dependencies?",
+      "options": [
+        "Abstract Factory Pattern",
+        "Observer (Publish-Subscribe) Pattern",
+        "Decorator Pattern",
+        "Flyweight Pattern"
+      ],
+      "correct_option_index": 1,
+      "explanation": "The Observer pattern defines a one-to-many dependency between objects. When the subject's state changes, all registered observers are notified automatically, satisfying the Open/Closed Principle and decoupling producer from consumers."
+    },
+    {
+      "id": "lld-02",
+      "topic_id": "lld",
+      "text": "According to the Liskov Substitution Principle (LSP) in SOLID design, what invariant must hold when subclassing a base type?",
+      "options": [
+        "Subtypes must override every public and protected method of the supertype",
+        "Objects of a superclass should be replaceable with objects of its subclasses without altering program correctness or violating preconditions/postconditions",
+        "Subtypes may broaden preconditions and restrict postconditions arbitrarily",
+        "Subclasses must belong to the exact same package namespace as the base class"
+      ],
+      "correct_option_index": 1,
+      "explanation": "LSP requires behavioral subtyping: preconditions cannot be strengthened in a subtype, postconditions cannot be weakened, and all supertype invariants must be preserved. A client relying on base contracts must function correctly without knowing the concrete subtype."
+    },
+    {
+      "id": "lld-03",
+      "topic_id": "lld",
+      "text": "When implementing a thread-safe Singleton in Java, why is the 'volatile' keyword mandatory in the Double-Checked Locking (DCL) idiom?",
+      "options": [
+        "To prevent Garbage Collection from prematurely reaping the singleton instance",
+        "To prevent CPU instruction reordering that could expose a partially initialized object reference to concurrent threads",
+        "To synchronize the classloader during bytecode verification",
+        "To guarantee that the singleton instance is allocated strictly on the thread's call stack"
+      ],
+      "correct_option_index": 1,
+      "explanation": "Object instantiation in Java involves memory allocation, constructor execution, and reference assignment. Without 'volatile', JVM/compiler reordering could assign the instance reference before the constructor finishes, allowing a concurrent thread to read a non-null but partially constructed object."
+    }
+  ],
+  "java": [
+    {
+      "id": "java-01",
+      "topic_id": "java",
+      "text": "What is the primary architectural difference between Java's ConcurrentHashMap and Collections.synchronizedMap() under high concurrent read/write throughput?",
+      "options": [
+        "ConcurrentHashMap uses a single global reentrant lock across the entire hash table",
+        "ConcurrentHashMap employs non-blocking lock-free reads, CAS operations, and synchronized locks at the bucket-level bin rather than a monolithic map-wide lock",
+        "Collections.synchronizedMap() partitions keys into separate threads using ForkJoinPool",
+        "ConcurrentHashMap serializes all write operations into a persistent circular ring buffer"
+      ],
+      "correct_option_index": 1,
+      "explanation": "Collections.synchronizedMap wraps every access in a synchronized block on a single mutex, bottlenecking concurrency. In modern Java, ConcurrentHashMap avoids table-wide locking: reads are lock-free via volatile memory semantics, and writes synchronize only on the individual bucket's head node (or use CAS for insertion)."
+    },
+    {
+      "id": "java-02",
+      "topic_id": "java",
+      "text": "In the Java Virtual Machine (HotSpot), how does the G1 (Garbage-First) GC achieve predictable pause-time targets compared to the legacy Parallel GC?",
+      "options": [
+        "By completely stopping the JVM and performing a full contiguous heap compaction on every cycle",
+        "By dividing the heap into equal-sized virtual regions and prioritizing collection of regions with the highest ratio of reclaimable dead objects within the pause time budget",
+        "By running exclusively in user-space threads without triggering safepoints",
+        "By disabling generational garbage collection and relying solely on reference counting"
+      ],
+      "correct_option_index": 1,
+      "explanation": "G1 splits the heap into 2048+ equal-sized non-contiguous regions. It tracks liveness telemetry and prioritizes collecting regions containing the most 'garbage first' (highest reclaimable yield) to satisfy the configured MaxGCPauseMillis target incrementally."
+    },
+    {
+      "id": "java-03",
+      "topic_id": "java",
+      "text": "What happens when two threads execute notify() and wait() on a shared object monitor where the waiting thread invoked wait() without holding the object's synchronized monitor lock?",
+      "options": [
+        "The JVM will automatically acquire the monitor lock on behalf of the thread",
+        "An IllegalMonitorStateException is thrown at runtime",
+        "The thread deadlocks indefinitely waiting for operating system scheduling",
+        "The thread completes execution immediately with a NullPointerException"
+      ],
+      "correct_option_index": 1,
+      "explanation": "In Java, wait(), notify(), and notifyAll() require that the executing thread holds the monitor lock on that specific object. Invoking them outside a synchronized(lock) block violates monitor ownership semantics and immediately triggers an IllegalMonitorStateException."
+    }
+  ],
+  "spring": [
+    {
+      "id": "spring-01",
+      "topic_id": "spring",
+      "text": "In Spring Framework, how does declarative transaction management (@Transactional) function under default proxy-based AOP when a transactional method is invoked internally from another method within the same class (self-invocation)?",
+      "options": [
+        "The transaction propagates normally with PROPAGATION_REQUIRED semantics",
+        "The transaction is bypassed entirely because internal self-invocation calls this.method() directly, circumventing the Spring dynamic proxy wrapper",
+        "Spring throws an UndeclaredThrowableException at runtime",
+        "The transaction creates a nested savepoint transaction on the active connection"
+      ],
+      "correct_option_index": 1,
+      "explanation": "Spring's default AOP uses JDK dynamic proxies or CGLIB subclass proxies. When a method calls another method on 'this' inside the same bean instance, the call does not pass through the interceptor proxy. Consequently, the TransactionInterceptor is not triggered, and no transaction is started."
+    },
+    {
+      "id": "spring-02",
+      "topic_id": "spring",
+      "text": "What is the difference between Spring Bean scopes 'singleton' and 'prototype'?",
+      "options": [
+        "Singleton beans are created once per HTTP session; prototype beans are created once per application lifecycle",
+        "Singleton beans create a single cached instance per Spring ApplicationContext; prototype beans produce a new instance on every injection or getBean() lookup",
+        "Prototype beans are thread-safe by default, whereas singleton beans require external synchronization",
+        "Singleton beans cannot be injected into prototype beans"
+      ],
+      "correct_option_index": 1,
+      "explanation": "In Spring, 'singleton' scope (the default) manages a single shared instance per ApplicationContext container. In contrast, 'prototype' scope causes the container to instantiate a brand-new bean instance every time that bean is requested or injected."
+    },
+    {
+      "id": "spring-03",
+      "topic_id": "spring",
+      "text": "Under Spring's @Transactional propagation settings, how does Propagation.REQUIRES_NEW behave when invoked within an already active transaction?",
+      "options": [
+        "It joins the existing outer transaction and commits simultaneously with it",
+        "It suspends the current active transaction, begins an independent physical transaction on a new connection, commits or rolls back independently, and then resumes the outer transaction",
+        "It throws a TransactionSuspensionNotSupportedException if an active transaction is detected",
+        "It creates a read-only snapshot isolated transaction sharing the existing JDBC connection"
+      ],
+      "correct_option_index": 1,
+      "explanation": "Propagation.REQUIRES_NEW always starts a new physical transaction. If an outer transaction is already running, it is suspended, and the inner transaction executes with its own database connection and commit/rollback boundary, completely isolated from the outer transaction's outcome."
+    }
+  ]
+}
