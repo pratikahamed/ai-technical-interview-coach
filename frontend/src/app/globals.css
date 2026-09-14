@@ -1,0 +1,92 @@
+@import "tailwindcss";
+
+@theme {
+  --color-surface: #121318;
+  --color-surface-dim: #121318;
+  --color-surface-bright: #38393f;
+  --color-surface-container-lowest: #090a0f;
+  --color-surface-container-low: #11131f;
+  --color-surface-container: #181b2c;
+  --color-surface-container-high: #1e2235;
+  --color-surface-container-highest: #282d46;
+  --color-surface-variant: #34343a;
+
+  --color-on-surface: #e3e1e9;
+  --color-on-surface-variant: #94a3b8;
+  --color-inverse-surface: #e3e1e9;
+  --color-inverse-on-surface: #2f3036;
+
+  --color-primary: #38bdf8;
+  --color-primary-container: #0284c7;
+  --color-primary-fixed: #c4e7ff;
+  --color-primary-fixed-dim: #7bd0ff;
+  --color-on-primary: #090a0f;
+  --color-on-primary-container: #e0f2fe;
+
+  --color-secondary: #4cd7f6;
+  --color-secondary-container: #06b6d4;
+  --color-secondary-fixed: #acedff;
+  --color-on-secondary: #003640;
+  --color-on-secondary-container: #00424e;
+
+  --color-tertiary: #10b981;
+  --color-tertiary-container: #059669;
+  --color-tertiary-fixed: #6ffbbe;
+  --color-tertiary-fixed-dim: #4edea3;
+  --color-on-tertiary: #003824;
+  --color-on-tertiary-container: #d1fae5;
+
+  --color-error: #f43f5e;
+  --color-error-container: #9f1239;
+  --color-on-error: #fff1f2;
+  --color-on-error-container: #ffe4e6;
+
+  --color-outline: #334155;
+  --color-outline-variant: rgba(255, 255, 255, 0.08);
+
+  --font-sans: var(--font-geist-sans), system-ui, sans-serif;
+  --font-mono: var(--font-jetbrains-mono), monospace;
+}
+
+:root {
+  --background: #090a0f;
+  --foreground: #e3e1e9;
+}
+
+html,
+body {
+  background-color: #090a0f;
+  color: #e3e1e9;
+  min-height: 100vh;
+  font-family: var(--font-sans);
+}
+
+.bg-grid-tech {
+  background-size: 24px 24px;
+  background-image: radial-gradient(circle, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
+}
+
+/* Directional top-edge highlight per Engineered Precision spec */
+.border-top-highlight {
+  box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.1);
+}
+
+.border-top-highlight-strong {
+  box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.2);
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #090a0f;
+}
+::-webkit-scrollbar-thumb {
+  background: #1e2235;
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #334155;
+}
