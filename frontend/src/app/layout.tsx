@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, JetBrains_Mono } from "next/font/google";
+import { BackendStatusWidget } from "@/components/common/BackendStatusWidget";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -35,6 +36,7 @@ export default function RootLayout({
     >
       <body className="min-h-screen bg-surface-container-lowest text-on-surface font-sans selection:bg-primary selection:text-on-primary">
         {children}
+        <BackendStatusWidget />
       </body>
     </html>
   );
