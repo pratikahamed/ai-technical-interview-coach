@@ -13,11 +13,32 @@ export function Navbar() {
   const [latencyMs, setLatencyMs] = useState<number | null>(null);
   const [isRefreshing, setIsRefreshing] = useState(false);
 
+  // Sync state whenever ANY API request (generate, evaluate, topics) succeeds in the app
+  useEffect(() => {
+    const handleStatusChange = (e: Event) => {
+      const customEvent = e as CustomEvent<{
+        status: ConnectionStatus;
+        latency?: number;
+      }>;
+      if (customEvent.detail?.status) {
+        setStatus(customEvent.detail.status);
+        if (customEvent.detail.latency !== undefined) {
+          setLatencyMs(customEvent.detail.latency);
+        }
+      }
+    };
+
+    window.addEventListener("backend-status-change", handleStatusChange);
+    return () => {
+      window.removeEventListener("backend-status-change", handleStatusChange);
+    };
+  }, []);
+
   const checkConnection = useCallback(async (isManual: boolean = false) => {
     if (isManual) setIsRefreshing(true);
     const startTime = performance.now();
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 8000);
+    const timeoutId = setTimeout(() => controller.abort(), 15000);
     try {
       const response = await fetch(`${API_BASE_URL}/health`, {
         method: "GET",
@@ -33,7 +54,8 @@ export function Navbar() {
         setStatus("error");
         setLatencyMs(null);
       }
-    } catch {
+    } catch (err) {
+      console.warn("[HealthCheck] Health probe ping failed:", err);
       setStatus("error");
       setLatencyMs(null);
     } finally {
@@ -82,14 +104,14 @@ export function Navbar() {
           <div className="relative flex items-center gap-2 px-3 py-1 rounded-full bg-surface-container/60 border border-outline text-xs font-mono specular-rim">
             <span className="relative flex h-2 w-2">
               {status === "connected" && (
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-tertiary opacity-75" />
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
               )}
               <span
                 className={`relative inline-flex rounded-full h-2 w-2 ${
                   status === "connected"
-                    ? "bg-tertiary"
+                    ? "bg-emerald-400"
                     : status === "error"
-                    ? "bg-error"
+                    ? "bg-rose-500"
                     : "bg-amber-400"
                 }`}
               />

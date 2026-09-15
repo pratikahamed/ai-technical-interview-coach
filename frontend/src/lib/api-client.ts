@@ -38,6 +38,16 @@ export class ApiClientError extends Error {
   }
 }
 
+export function notifyBackendOnline(latency?: number) {
+  if (typeof window !== "undefined") {
+    window.dispatchEvent(
+      new CustomEvent("backend-status-change", {
+        detail: { status: "connected", latency },
+      })
+    );
+  }
+}
+
 /**
  * Fetch wrapper that attaches a strict AbortController timeout.
  */
@@ -48,12 +58,20 @@ async function fetchWithTimeout(
 ): Promise<Response> {
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+  const startTime = typeof performance !== "undefined" ? performance.now() : Date.now();
 
   try {
     const res = await fetch(url, {
       ...options,
       signal: controller.signal,
     });
+    if (res.ok) {
+      const elapsed = Math.round(
+        (typeof performance !== "undefined" ? performance.now() : Date.now()) -
+          startTime
+      );
+      notifyBackendOnline(elapsed);
+    }
     return res;
   } catch (err: unknown) {
     if (err instanceof DOMException && err.name === "AbortError") {
