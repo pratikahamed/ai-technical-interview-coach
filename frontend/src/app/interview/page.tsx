@@ -24,12 +24,12 @@ import { safeStorage } from "@/hooks/use-session-storage";
 import { Difficulty, QuestionPublic, Seniority, Topic } from "@/types";
 
 const STORAGE_KEYS = {
-  ACTIVE_TOPIC: "ai_interview_active_topic",
-  ACTIVE_SENIORITY: "ai_interview_active_seniority",
-  ACTIVE_DIFFICULTY: "ai_interview_active_difficulty",
-  ACTIVE_SESSION_ID: "ai_interview_active_session_id",
-  ACTIVE_ANSWERS: "ai_interview_active_answers",
-  QUIZ_RESULT: "ai_interview_quiz_result",
+  ACTIVE_TOPIC: "ai_technical_interview_active_topic",
+  ACTIVE_SENIORITY: "ai_technical_interview_active_seniority",
+  ACTIVE_DIFFICULTY: "ai_technical_interview_active_difficulty",
+  ACTIVE_SESSION_ID: "ai_technical_interview_active_session_id",
+  ACTIVE_ANSWERS: "ai_technical_interview_active_answers",
+  QUIZ_RESULT: "ai_technical_interview_quiz_result",
 };
 
 type InterviewView = "SELECT_TOPIC" | "ACTIVE_QUIZ";

@@ -18,7 +18,7 @@ const jetbrainsMono = JetBrains_Mono({
 function getMetadataBaseUrl(): URL {
   const envUrl = process.env.NEXT_PUBLIC_SITE_URL?.trim();
   if (!envUrl) {
-    return new URL("https://ai-interview-coach.vercel.app");
+    return new URL("https://ai-technical-interview-coach.vercel.app");
   }
   try {
     const formatted =
@@ -27,7 +27,7 @@ function getMetadataBaseUrl(): URL {
         : `https://${envUrl}`;
     return new URL(formatted);
   } catch {
-    return new URL("https://ai-interview-coach.vercel.app");
+    return new URL("https://ai-technical-interview-coach.vercel.app");
   }
 }
 

@@ -3,7 +3,7 @@
 
 services:
   - type: web
-    name: ai-interview-coach-api
+    name: ai-technical-interview-coach-api
     runtime: python
     plan: free
     region: oregon
@@ -20,7 +20,7 @@ services:
       - key: LOG_LEVEL
         value: INFO
       - key: ALLOWED_ORIGINS
-        value: https://ai-interview-coach.vercel.app,http://localhost:3000
+        value: https://ai-technical-interview-coach.vercel.app,https://ai-interview-coach.vercel.app,http://localhost:3000
       - key: QUIZ_PROVIDER
         value: groq
       - key: GROQ_API_KEY

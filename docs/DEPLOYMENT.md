@@ -51,7 +51,7 @@ This canonical deployment guide details the end-to-end production rollout for th
 
 Before beginning deployment, ensure you have the following credentials and accounts:
 
-1. **GitHub Repository**: A pushed copy of this repository (`ai-interview-coach`) on GitHub.
+1. **GitHub Repository**: A pushed copy of this repository (`ai-technical-interview-coach`) on GitHub.
 2. **Groq Cloud API Key**: An active API key from the [Groq Console](https://console.groq.com/keys) (`gsk_...`).
 3. **Render Account**: An account on [Render.com](https://render.com) for deploying the FastAPI backend.
 4. **Vercel Account**: An account on [Vercel.com](https://vercel.com) for deploying the Next.js frontend.
@@ -64,12 +64,12 @@ The backend runs as a native Python web service on Render. You can deploy it usi
 
 ### Option A: Render Blueprint Deployment (Recommended)
 
-The repository includes a canonical [`render.yaml`](file:///c:/Users/Pratik%20Ahamed/Desktop/Antigravity_Projects/ai-interview-coach/render.yaml) at the repository root that automatically configures the service, root directory, build command, start command, and environment variables.
+The repository includes a canonical [`render.yaml`](../render.yaml) at the repository root that automatically configures the service, root directory, build command, start command, and environment variables.
 
 1. Log in to your [Render Dashboard](https://dashboard.render.com/).
 2. Click **New +** $\to$ **Blueprint**.
-3. Select your connected GitHub repository: `ai-interview-coach`.
-4. Render will read `render.yaml` and display the `ai-interview-coach-api` service configuration.
+3. Select your connected GitHub repository: `ai-technical-interview-coach`.
+4. Render will read `render.yaml` and display the `ai-technical-interview-coach-api` service configuration.
 5. In the environment variables prompt, enter your `GROQ_API_KEY` (format: `gsk_...`).
 6. Click **Apply**. Render will automatically build and launch the Python backend service.
 
@@ -80,9 +80,9 @@ The repository includes a canonical [`render.yaml`](file:///c:/Users/Pratik%20Ah
 If you prefer to configure the Web Service manually through the Render Dashboard:
 
 1. In the [Render Dashboard](https://dashboard.render.com/), click **New +** $\to$ **Web Service**.
-2. Select your connected GitHub repository: `ai-interview-coach`.
+2. Select your connected GitHub repository: `ai-technical-interview-coach`.
 3. Configure the service settings:
-   - **Name**: `ai-interview-coach-api` (or your preferred name)
+   - **Name**: `ai-technical-interview-coach-api` (or your preferred name)
    - **Region**: Select your preferred region (e.g., `Oregon (US West)` or `Frankfurt (EU Central)`)
    - **Branch**: `main`
    - **Root Directory**: `backend` *(CRITICAL: This isolates the backend build context)*
@@ -107,7 +107,7 @@ Configure these variables in Render under **Environment**:
 | `PORT` | Auto | `8000` | *Auto-assigned by Render (`$PORT`)* | Port on which Uvicorn binds. |
 | `ENVIRONMENT` | Optional | `development` | `production` | Active runtime stage. |
 | `LOG_LEVEL` | Optional | `INFO` | `INFO` | Logging threshold (`DEBUG`, `INFO`, `WARNING`, `ERROR`). |
-| `ALLOWED_ORIGINS` | Yes | `http://localhost:3000` | `https://<your-app>.vercel.app,http://localhost:3000` | Whitelisted origins for CORS. Supports comma-separated list or `*`. |
+| `ALLOWED_ORIGINS` | Yes | `http://localhost:3000` | `https://ai-technical-interview-coach.vercel.app,http://localhost:3000` | Whitelisted origins for CORS. Supports comma-separated list or `*`. |
 | `QUIZ_PROVIDER` | Yes | `groq` | `groq` | Evaluation engine toggle (`groq` for live LLM, `mock` for deterministic fallback). |
 | `GROQ_API_KEY` | Yes (if groq) | *(Empty)* | `gsk_...` | Groq Cloud secret key. |
 | `GROQ_MODEL` | Optional | `openai/gpt-oss-120b` | `openai/gpt-oss-120b` | Target Groq model. |
@@ -122,17 +122,17 @@ The frontend is a Next.js 16 App Router application configured for native deploy
 ### Step-by-Step Deployment
 
 1. Log in to the [Vercel Dashboard](https://vercel.com/) and click **Add New...** $\to$ **Project**.
-2. Import the `ai-interview-coach` GitHub repository.
+2. Import the `ai-technical-interview-coach` GitHub repository.
 3. In the project configuration screen:
-   - **Project Name**: `ai-interview-coach` (or your preferred name)
+   - **Project Name**: `ai-technical-interview-coach` (or your preferred name)
    - **Framework Preset**: `Next.js`
    - **Root Directory**: Click **Edit** and select **`frontend`** *(CRITICAL: The Next.js app is located in the `frontend` folder. Leaving this as `./` will fail the build).*
 4. Expand the **Environment Variables** section and configure:
 
 | Variable | Environment | Example Value | Description |
 | :--- | :--- | :--- | :--- |
-| `NEXT_PUBLIC_API_BASE_URL` | Production, Preview, Dev | `https://ai-interview-coach-api.onrender.com` | Base URL of your deployed Render FastAPI backend. |
-| `NEXT_PUBLIC_SITE_URL` | Production, Preview | `https://ai-interview-coach.vercel.app` | Canonical site URL for metadata and OpenGraph SEO. |
+| `NEXT_PUBLIC_API_BASE_URL` | Production, Preview, Dev | `https://ai-technical-interview-coach-api.onrender.com` | Base URL of your deployed Render FastAPI backend. |
+| `NEXT_PUBLIC_SITE_URL` | Production, Preview | `https://ai-technical-interview-coach.vercel.app` | Canonical site URL for metadata and OpenGraph SEO. |
 
 5. Click **Deploy**. Vercel will run `npm run build` using Turbopack and generate the static routes (`/`, `/interview`, `/results`).
 
@@ -145,12 +145,12 @@ The frontend is a Next.js 16 App Router application configured for native deploy
 
 To allow your Vercel frontend to communicate with your Render backend:
 
-1. Copy your production Vercel URL (e.g., `https://ai-interview-coach.vercel.app`).
-2. In the Render Dashboard for `ai-interview-coach-api`:
+1. Copy your production Vercel URL (e.g., `https://ai-technical-interview-coach.vercel.app`).
+2. In the Render Dashboard for `ai-technical-interview-coach-api`:
    - Navigate to **Environment**.
    - Edit `ALLOWED_ORIGINS` to include your Vercel URL:
      ```env
-     ALLOWED_ORIGINS=https://ai-interview-coach.vercel.app,http://localhost:3000
+     ALLOWED_ORIGINS=https://ai-technical-interview-coach.vercel.app,http://localhost:3000
      ```
    - Click **Save Changes**. Render will automatically redeploy the backend service.
 3. **Automated Preview Branch Support**:

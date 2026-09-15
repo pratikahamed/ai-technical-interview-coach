@@ -1,7 +1,7 @@
 # AI Technical Interview Coach
 
-[![Backend CI](https://github.com/example/ai-interview-coach/actions/workflows/ci-backend.yml/badge.svg)](https://github.com/example/ai-interview-coach/actions/workflows/ci-backend.yml)
-[![Frontend CI](https://github.com/example/ai-interview-coach/actions/workflows/ci-frontend.yml/badge.svg)](https://github.com/example/ai-interview-coach/actions/workflows/ci-frontend.yml)
+[![Backend CI](https://github.com/pratikahamed/ai-technical-interview-coach/actions/workflows/ci-backend.yml/badge.svg)](https://github.com/pratikahamed/ai-technical-interview-coach/actions/workflows/ci-backend.yml)
+[![Frontend CI](https://github.com/pratikahamed/ai-technical-interview-coach/actions/workflows/ci-frontend.yml/badge.svg)](https://github.com/pratikahamed/ai-technical-interview-coach/actions/workflows/ci-frontend.yml)
 [![FastAPI](https://img.shields.io/badge/Backend-FastAPI%200.110+-009688.svg?logo=fastapi)](https://fastapi.tiangolo.com)
 [![Next.js](https://img.shields.io/badge/Frontend-Next.js%2016.3.5%20(App%20Router)-black.svg?logo=next.js)](https://nextjs.org)
 [![Groq LLM](https://img.shields.io/badge/LLM-Groq%20%7C%20gpt--oss--120b-f55036.svg)](https://groq.com)
@@ -81,7 +81,7 @@ Built with an **"Engineered Precision"** dark technical aesthetic inspired by Li
 ## Repository Structure
 
 ```text
-ai-interview-coach/
+ai-technical-interview-coach/
 ├── .github/
 │   └── workflows/
 │       ├── ci-backend.yml                  # Isolated Python 3.12 pytest CI workflow
@@ -253,7 +253,7 @@ When calling `POST /api/v1/quiz/generate`, the server creates a temporary evalua
 | Variable | Type | Default | Description |
 | :--- | :--- | :--- | :--- |
 | `NEXT_PUBLIC_API_BASE_URL` | String | `http://localhost:8000` | Base URL of the FastAPI backend. **Must not contain a trailing slash.** |
-| `NEXT_PUBLIC_SITE_URL` | String | `https://ai-interview-coach.vercel.app` | Canonical site URL for OpenGraph metadata. |
+| `NEXT_PUBLIC_SITE_URL` | String | `https://ai-technical-interview-coach.vercel.app` | Canonical site URL for OpenGraph metadata. |
 
 ---
 

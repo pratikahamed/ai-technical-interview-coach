@@ -16,12 +16,12 @@ import { QuizResult } from "@/types";
 import { Button } from "@/components/ui/button";
 
 const STORAGE_KEYS = {
-  ACTIVE_TOPIC: "ai_interview_active_topic",
-  ACTIVE_SENIORITY: "ai_interview_active_seniority",
-  ACTIVE_DIFFICULTY: "ai_interview_active_difficulty",
-  ACTIVE_SESSION_ID: "ai_interview_active_session_id",
-  ACTIVE_ANSWERS: "ai_interview_active_answers",
-  QUIZ_RESULT: "ai_interview_quiz_result",
+  ACTIVE_TOPIC: "ai_technical_interview_active_topic",
+  ACTIVE_SENIORITY: "ai_technical_interview_active_seniority",
+  ACTIVE_DIFFICULTY: "ai_technical_interview_active_difficulty",
+  ACTIVE_SESSION_ID: "ai_technical_interview_active_session_id",
+  ACTIVE_ANSWERS: "ai_technical_interview_active_answers",
+  QUIZ_RESULT: "ai_technical_interview_quiz_result",
 };
 
 export default function ResultsPage() {

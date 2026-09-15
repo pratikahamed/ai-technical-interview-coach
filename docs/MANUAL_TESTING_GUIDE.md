@@ -208,7 +208,7 @@ Open your browser and navigate to `http://localhost:3000`.
 #### A. Expired Session Simulation (HTTP 410)
 1. In the browser console on `/interview`, simulate an expired or altered session:
    ```javascript
-   sessionStorage.setItem("ai_interview_active_session_id", "00000000-0000-0000-0000-000000000000");
+   sessionStorage.setItem("ai_technical_interview_active_session_id", "00000000-0000-0000-0000-000000000000");
    ```
 2. Submit the quiz.
 3. Verify the frontend catches the `SESSION_EXPIRED` error and displays:

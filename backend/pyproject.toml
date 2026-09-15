@@ -1,5 +1,5 @@
 [project]
-name = "ai-interview-coach-backend"
+name = "ai-technical-interview-coach-backend"
 version = "1.1.0"
 description = "Deterministic evaluation engine for software engineering mock interviews"
 readme = "README.md"
