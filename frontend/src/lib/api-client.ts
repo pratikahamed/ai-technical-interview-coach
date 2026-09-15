@@ -180,23 +180,57 @@ export function getContextualErrorMessage(error: unknown): {
 }
 
 /**
+ * Probes backend health with dual-endpoint fallback (/api/v1/health -> /health)
+ * and dispatches live status updates.
+ */
+export async function checkBackendHealth(timeoutMs: number = 12000): Promise<{
+  ok: boolean;
+  latencyMs: number;
+}> {
+  const startTime =
+    typeof performance !== "undefined" ? performance.now() : Date.now();
+
+  const endpoints = [
+    `${API_BASE_URL}/api/v1/health`,
+    `${API_BASE_URL}/health`,
+  ];
+
+  for (const endpoint of endpoints) {
+    try {
+      const res = await fetchWithTimeout(
+        endpoint,
+        {
+          method: "GET",
+          headers: { Accept: "application/json" },
+          cache: "no-store",
+        },
+        timeoutMs
+      );
+
+      if (res.ok) {
+        const elapsed = Math.round(
+          (typeof performance !== "undefined" ? performance.now() : Date.now()) -
+            startTime
+        );
+        notifyBackendOnline(elapsed);
+        return { ok: true, latencyMs: elapsed };
+      }
+    } catch {
+      // Continue to next endpoint fallback
+    }
+  }
+
+  return { ok: false, latencyMs: 0 };
+}
+
+/**
  * Silent non-blocking health probe to wake up Render free-tier containers.
  */
 export async function pingHealth(): Promise<boolean> {
-  try {
-    const res = await fetchWithTimeout(
-      `${API_BASE_URL}/health`,
-      {
-        method: "GET",
-        cache: "no-store",
-      },
-      5000
-    );
-    return res.ok;
-  } catch {
-    return false;
-  }
+  const result = await checkBackendHealth(15000);
+  return result.ok;
 }
+
 
 /**
  * Fetch all available mock interview tracks.

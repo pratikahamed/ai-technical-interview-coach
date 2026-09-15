@@ -1,9 +1,9 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import Link from "next/link";
 import { Terminal, RefreshCw } from "lucide-react";
-import { API_BASE_URL } from "@/lib/api-client";
+import { checkBackendHealth } from "@/lib/api-client";
 import { Badge } from "@/components/ui/badge";
 
 type ConnectionStatus = "checking" | "connected" | "error";
@@ -12,6 +12,7 @@ export function Navbar() {
   const [status, setStatus] = useState<ConnectionStatus>("checking");
   const [latencyMs, setLatencyMs] = useState<number | null>(null);
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const failureCountRef = useRef(0);
 
   // Sync state whenever ANY API request (generate, evaluate, topics) succeeds in the app
   useEffect(() => {
@@ -21,6 +22,9 @@ export function Navbar() {
         latency?: number;
       }>;
       if (customEvent.detail?.status) {
+        if (customEvent.detail.status === "connected") {
+          failureCountRef.current = 0;
+        }
         setStatus(customEvent.detail.status);
         if (customEvent.detail.latency !== undefined) {
           setLatencyMs(customEvent.detail.latency);
@@ -36,30 +40,29 @@ export function Navbar() {
 
   const checkConnection = useCallback(async (isManual: boolean = false) => {
     if (isManual) setIsRefreshing(true);
-    const startTime = performance.now();
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 15000);
     try {
-      const response = await fetch(`${API_BASE_URL}/health`, {
-        method: "GET",
-        cache: "no-store",
-        signal: controller.signal,
-      });
-      const elapsed = Math.round(performance.now() - startTime);
+      const result = await checkBackendHealth(isManual ? 15000 : 12000);
 
-      if (response.ok) {
+      if (result.ok) {
+        failureCountRef.current = 0;
         setStatus("connected");
-        setLatencyMs(elapsed);
+        setLatencyMs(result.latencyMs);
       } else {
+        failureCountRef.current += 1;
+        // If manual refresh or consecutive background failures >= 3, mark as error
+        if (isManual || failureCountRef.current >= 3) {
+          setStatus("error");
+          setLatencyMs(null);
+        }
+        // Otherwise (if previously connected and single background flake), keep connected!
+      }
+    } catch {
+      failureCountRef.current += 1;
+      if (isManual || failureCountRef.current >= 3) {
         setStatus("error");
         setLatencyMs(null);
       }
-    } catch (err) {
-      console.warn("[HealthCheck] Health probe ping failed:", err);
-      setStatus("error");
-      setLatencyMs(null);
     } finally {
-      clearTimeout(timeoutId);
       if (isManual) setIsRefreshing(false);
     }
   }, []);
@@ -67,13 +70,26 @@ export function Navbar() {
   useEffect(() => {
     const timer = setTimeout(() => {
       checkConnection(false);
-    }, 0);
-    const interval = setInterval(() => checkConnection(false), 20000);
+    }, 100);
+
+    // Relaxed background polling every 45s (prevents Render free-tier throttling)
+    const interval = setInterval(() => checkConnection(false), 45000);
+
+    // Re-check when user focuses window or comes back online
+    const handleFocus = () => checkConnection(false);
+    const handleOnline = () => checkConnection(false);
+
+    window.addEventListener("focus", handleFocus);
+    window.addEventListener("online", handleOnline);
+
     return () => {
       clearTimeout(timer);
       clearInterval(interval);
+      window.removeEventListener("focus", handleFocus);
+      window.removeEventListener("online", handleOnline);
     };
   }, [checkConnection]);
+
 
   return (
     <header className="fixed top-0 inset-x-0 z-50 bg-[#090A0F]/85 backdrop-blur-xl border-b border-outline specular-rim">
