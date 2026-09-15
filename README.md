@@ -17,8 +17,8 @@ Built with an **"Engineered Precision"** dark technical aesthetic inspired by Li
 
 ## Canonical Guides & Documentation
 
-- 🚀 **[DEPLOYMENT.md](DEPLOYMENT.md)**: Comprehensive cloud deployment runbook for **Render** (FastAPI) and **Vercel** (Next.js), including CORS handshakes, health probes, and cold-start mitigations.
-- 🧪 **[MANUAL_TESTING_GUIDE.md](MANUAL_TESTING_GUIDE.md)**: Step-by-step verification playbook covering 7 manual browser scenarios, dual-provider execution, client secret masking audits, and port cleanup scripts.
+- 🚀 **[docs/DEPLOYMENT.md](docs/DEPLOYMENT.md)**: Comprehensive cloud deployment runbook for **Render** (FastAPI Blueprint & Native Web Service) and **Vercel** (Next.js), including CORS handshakes, health probes, and cold-start mitigations.
+- 🧪 **[docs/MANUAL_TESTING_GUIDE.md](docs/MANUAL_TESTING_GUIDE.md)**: Step-by-step verification playbook covering 7 manual browser scenarios, dual-provider execution, client secret masking audits, and port cleanup scripts.
 - 📋 **[docs/prd.md](docs/prd.md)**: Complete Product Requirements Document.
 - 🎨 **[docs/design-brief.md](docs/design-brief.md)**: Design tokens, specular rims, typography, and WCAG 2.1 AA accessibility specifications.
 
@@ -33,7 +33,7 @@ Built with an **"Engineered Precision"** dark technical aesthetic inspired by Li
 | **Python Runtime** | Python | `>=3.10` (Target: `3.12`) | Core server runtime environment |
 | **Validation & Schemas** | Pydantic v2 | `2.6.0+` | Strict request/response data contracts |
 | **AI Inference** | Groq Python SDK | `0.9.0+` | Sub-second dynamic question synthesis (`openai/gpt-oss-120b`) |
-| **Backend Testing** | Pytest + AnyIO | `8.0.0+` | Automated endpoint contracts & concurrency suites (33 tests) |
+| **Backend Testing** | Pytest + AnyIO | `8.0.0+` | Automated endpoint contracts & concurrency suites (34 tests) |
 | **Frontend Framework** | Next.js (App Router) | `16.3.5` | React 19 server/client components with Turbopack |
 | **UI Library** | React & React DOM | `19.2.8` | Component rendering engine |
 | **Styling** | Tailwind CSS | `v4.0.0+` | CSS-first design tokens & dark technical theme |
@@ -122,13 +122,14 @@ ai-interview-coach/
 │   ├── tests/
 │   │   ├── __init__.py
 │   │   ├── conftest.py                     # TestClient fixture
-│   │   ├── test_endpoints.py               # All REST endpoint contract tests (16 tests)
+│   │   ├── test_endpoints.py               # All REST endpoint contract tests (17 tests)
 │   │   ├── test_llm_service.py             # LLM calibration, prompt tuning & live Groq tests (8 tests)
 │   │   ├── test_schemas_and_models.py      # Schema validation & secret masking invariant tests (6 tests)
 │   │   └── test_session_cache.py           # TTL eviction & concurrency lock stress tests (3 tests)
 │   ├── .env.example
 │   ├── .gitignore
-│   ├── Dockerfile
+│   ├── .python-version                     # Pinned Python 3.11.9 runtime
+│   ├── runtime.txt                         # PaaS runtime declaration
 │   ├── Procfile
 │   ├── pyproject.toml
 │   └── requirements.txt
@@ -181,10 +182,15 @@ ai-interview-coach/
 │   ├── package.json
 │   ├── postcss.config.mjs
 │   ├── tailwind.config.ts
-│   └── tsconfig.json
+│   ├── tsconfig.json
+│   └── vercel.json                         # Explicit Vercel Next.js configuration
+├── docs/
+│   ├── DEPLOYMENT.md                       # Canonical cloud deployment guide
+│   ├── MANUAL_TESTING_GUIDE.md             # Canonical manual verification playbook
+│   ├── design-brief.md                     # Raycast/Linear design tokens & WCAG 2.1 specs
+│   └── prd.md                              # Product Requirements Document
 ├── .gitignore
-├── DEPLOYMENT.md                           # Canonical cloud deployment guide
-├── MANUAL_TESTING_GUIDE.md                 # Canonical manual verification playbook
+├── render.yaml                             # 1-Click Render Blueprint specification
 └── README.md
 ```
 
@@ -194,6 +200,7 @@ ai-interview-coach/
 
 | Method | Path | Description | Request Payload | Response Model | Error Codes |
 | :--- | :--- | :--- | :--- | :--- | :--- |
+| `GET` | `/` | Root health & service probe | None | `{"status": "healthy", ...}` | — |
 | `GET` | `/health` | Root health probe | None | `{"status": "healthy"}` | — |
 | `GET` | `/api/v1/health` | Versioned health probe | None | `{"status": "healthy"}` | — |
 | `GET` | `/api/v1/topics` | Available tracks catalog | None | `List[Topic]` | — |
@@ -304,12 +311,12 @@ Frontend will be live at `http://localhost:3000`.
 ## Automated Testing & Quality Checks
 
 ### Backend Test Suite (Pytest)
-The backend features an automated test suite with **33 tests** verifying endpoint contracts, schema invariants, secret masking, LLM prompt calibration, and session cache concurrency:
+The backend features an automated test suite with **34 tests** verifying endpoint contracts, schema invariants, secret masking, LLM prompt calibration, and session cache concurrency:
 ```bash
 cd backend
 pytest -v tests/
 ```
-*Current Ground Truth:* **33 passed in ~9.8s**.
+*Current Ground Truth:* **34 passed in ~9.5s**.
 
 ### Frontend Quality & Build Verification
 ```bash
@@ -324,7 +331,7 @@ npm run build         # Production Turbopack compilation check
 
 ## Production Deployment
 
-Detailed cloud deployment instructions for Render and Vercel are documented in **[DEPLOYMENT.md](DEPLOYMENT.md)**.
+Detailed cloud deployment instructions for Render and Vercel are documented in **[docs/DEPLOYMENT.md](docs/DEPLOYMENT.md)**. Use the included `render.yaml` for 1-click Render Blueprint setup.
 
 ---
 

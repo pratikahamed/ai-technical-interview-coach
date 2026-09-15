@@ -6,6 +6,15 @@ from fastapi.testclient import TestClient
 # ------------------------------------------------------------------------------
 # Health Checks
 # ------------------------------------------------------------------------------
+def test_root_probe_check(client: TestClient):
+    """Verify root GET / returns 200 with service identity and healthy status."""
+    response = client.get("/")
+    assert response.status_code == 200
+    data = response.json()
+    assert data["status"] == "healthy"
+    assert "AI Technical Interview Coach API" in data["service"]
+
+
 def test_root_health_check(client: TestClient):
     """Verify root GET /health returns 200 and healthy status."""
     response = client.get("/health")

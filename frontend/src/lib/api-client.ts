@@ -11,8 +11,18 @@ import {
   Topic,
 } from "@/types";
 
-export const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8000";
+function sanitizeApiBaseUrl(url?: string): string {
+  if (!url || !url.trim()) return "http://localhost:8000";
+  let trimmed = url.trim().replace(/\/+$/, "");
+  if (!trimmed.startsWith("http://") && !trimmed.startsWith("https://")) {
+    trimmed = `https://${trimmed}`;
+  }
+  return trimmed;
+}
+
+export const API_BASE_URL = sanitizeApiBaseUrl(
+  process.env.NEXT_PUBLIC_API_BASE_URL
+);
 
 export const REQUEST_TIMEOUT_MS = 15000;
 

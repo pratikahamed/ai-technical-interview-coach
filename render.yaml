@@ -1,0 +1,31 @@
+# Render Blueprint Specification for AI Technical Interview Coach
+# Documentation: https://render.com/docs/blueprint-spec
+
+services:
+  - type: web
+    name: ai-interview-coach-api
+    runtime: python
+    plan: free
+    region: oregon
+    rootDir: backend
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /health
+    autoDeploy: true
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.9
+      - key: ENVIRONMENT
+        value: production
+      - key: LOG_LEVEL
+        value: INFO
+      - key: ALLOWED_ORIGINS
+        value: https://ai-interview-coach.vercel.app,http://localhost:3000
+      - key: QUIZ_PROVIDER
+        value: groq
+      - key: GROQ_API_KEY
+        sync: false
+      - key: GROQ_MODEL
+        value: openai/gpt-oss-120b
+      - key: GROQ_REQUEST_TIMEOUT_SECONDS
+        value: 15

@@ -25,11 +25,14 @@ app = FastAPI(
 # ------------------------------------------------------------------------------
 # CORS Middleware
 # ------------------------------------------------------------------------------
+# Prevent Starlette AssertionError if wildcard '*' is supplied in ALLOWED_ORIGINS
+_has_wildcard = "*" in settings.allowed_origins
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=settings.allowed_origins,
-    allow_origin_regex=r"^https://.*\.vercel\.app$",
-    allow_credentials=True,
+    allow_origins=["*"] if _has_wildcard else settings.allowed_origins,
+    allow_origin_regex=None if _has_wildcard else r"^https://.*\.vercel\.app$",
+    allow_credentials=False if _has_wildcard else True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
@@ -132,6 +135,18 @@ async def handle_general_exception(_: Request, exc: Exception) -> JSONResponse:
 # ------------------------------------------------------------------------------
 # Route Mounting
 # ------------------------------------------------------------------------------
+@app.get("/", tags=["Health"])
+async def root_probe():
+    """Root health verification returning service identity and status."""
+    return {
+        "status": "healthy",
+        "service": "AI Technical Interview Coach API",
+        "version": "1.1.0",
+        "docs": "/docs",
+        "health": "/health",
+    }
+
+
 # Root-level health check per PRD §5.3 / §7.1 for Render ping
 app.include_router(health_router)
 

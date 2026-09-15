@@ -15,8 +15,24 @@ const jetbrainsMono = JetBrains_Mono({
   display: "swap",
 });
 
+function getMetadataBaseUrl(): URL {
+  const envUrl = process.env.NEXT_PUBLIC_SITE_URL?.trim();
+  if (!envUrl) {
+    return new URL("https://ai-interview-coach.vercel.app");
+  }
+  try {
+    const formatted =
+      envUrl.startsWith("http://") || envUrl.startsWith("https://")
+        ? envUrl
+        : `https://${envUrl}`;
+    return new URL(formatted);
+  } catch {
+    return new URL("https://ai-interview-coach.vercel.app");
+  }
+}
+
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || "https://ai-interview-coach.vercel.app"),
+  metadataBase: getMetadataBaseUrl(),
   title: "AI Technical Interview Coach | Precision Mock Assessments",
   description:
     "Calibrated evaluations for DSA, System Design, LLD, Core Java, and Spring Framework. Immediate server-side rubric scoring with zero drift.",

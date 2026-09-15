@@ -16,10 +16,13 @@ export function Navbar() {
   const checkConnection = useCallback(async (isManual: boolean = false) => {
     if (isManual) setIsRefreshing(true);
     const startTime = performance.now();
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 8000);
     try {
       const response = await fetch(`${API_BASE_URL}/health`, {
         method: "GET",
         cache: "no-store",
+        signal: controller.signal,
       });
       const elapsed = Math.round(performance.now() - startTime);
 
@@ -34,6 +37,7 @@ export function Navbar() {
       setStatus("error");
       setLatencyMs(null);
     } finally {
+      clearTimeout(timeoutId);
       if (isManual) setIsRefreshing(false);
     }
   }, []);
